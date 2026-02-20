@@ -1,30 +1,10 @@
 plugins {
-    kotlin("jvm") version "2.0.21"
-    kotlin("plugin.serialization") version "2.0.21"
+    kotlin("jvm") version "2.0.21" apply false
+    kotlin("plugin.serialization") version "2.0.21" apply false
 }
 
-group = "com.anthropic"
-version = "0.1.0-SNAPSHOT"
-
-repositories {
-    mavenCentral()
-}
-
-kotlin {
-    jvmToolchain(17)
-}
-
-dependencies {
-    // Core
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
-
-    // Test
-    testImplementation(kotlin("test"))
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
-    testImplementation("io.mockk:mockk:1.13.13")
-}
-
-tasks.test {
-    useJUnitPlatform()
+subprojects {
+    repositories {
+        mavenCentral()
+    }
 }
