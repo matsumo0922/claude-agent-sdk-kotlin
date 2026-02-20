@@ -42,16 +42,19 @@ internal class QueryController(
 
     // --- Message channel ---
 
-    private val messageChannel = Channel<SDKMessage>(capacity = 100)
+    private val messageChannel = Channel<SDKMessage>(capacity = Channel.UNLIMITED)
 
     // --- Lifecycle ---
 
+    @Volatile
     private var readJob: Job? = null
+    @Volatile
     private var scope: CoroutineScope? = null
     @Volatile
     private var closed = false
     @Volatile
     private var initialized = false
+    @Volatile
     private var initializationResult: JsonObject? = null
 
     /**
@@ -278,6 +281,7 @@ internal class QueryController(
                 deferred.completeExceptionally(e)
             }
         } finally {
+            firstResultDeferred.complete(Unit) // Unblock streamInput on abnormal exit
             messageChannel.close()
         }
     }
@@ -328,8 +332,10 @@ internal class QueryController(
             ?: throw ClaudeSDKException("Missing tool_name in can_use_tool request")
         val input = request["input"]?.jsonObject ?: JsonObject(emptyMap())
         val suggestions = request["permission_suggestions"]?.jsonArray
-            ?.mapNotNull { /* TODO: parse PermissionUpdate */ null }
-            ?: emptyList<PermissionUpdate>()
+            ?.mapNotNull { element ->
+                runCatching { json.decodeFromJsonElement<PermissionUpdate>(element) }.getOrNull()
+            }
+            ?: emptyList()
 
         val inputMap: Map<String, Any?> = input.toMap()
         val context = ToolPermissionContext(signal = null, suggestions = suggestions)
@@ -546,6 +552,9 @@ internal class QueryController(
         } catch (e: TimeoutCancellationException) {
             pendingResponses.remove(requestId)
             throw ClaudeSDKException("Control request timeout: ${request["subtype"]?.jsonPrimitive?.contentOrNull}")
+        } catch (e: CancellationException) {
+            pendingResponses.remove(requestId)
+            throw e
         }
     }
 

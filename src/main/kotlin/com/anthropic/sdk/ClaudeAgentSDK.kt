@@ -11,6 +11,8 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onEach
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.longOrNull
 
 /**
  * Send a one-shot query to Claude and return the response text.
@@ -76,6 +78,8 @@ public suspend fun prompt(
                 result = rm.result,
                 sessionId = rm.sessionId,
                 totalCostUsd = rm.totalCostUsd,
+                inputTokens = rm.usage?.get("input_tokens")?.jsonPrimitive?.longOrNull ?: 0L,
+                outputTokens = rm.usage?.get("output_tokens")?.jsonPrimitive?.longOrNull ?: 0L,
                 numTurns = rm.numTurns,
                 durationMs = rm.durationMs,
                 isError = rm.isError,
@@ -102,6 +106,7 @@ public suspend fun prompt(
  *     allowTools("Read", "Glob", "Grep")
  *     bypassPermissions()
  * }.use { session ->
+ *     session.connect()
  *     session.send("Find all TODO comments")
  *     session.receive()
  *         .filterIsInstance<AssistantMessage>()

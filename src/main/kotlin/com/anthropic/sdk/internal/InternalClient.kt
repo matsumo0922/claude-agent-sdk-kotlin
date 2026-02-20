@@ -18,7 +18,9 @@ internal class InternalClient(
     private val options: ClaudeAgentOptions,
     private val transportFactory: (ClaudeAgentOptions) -> Transport,
 ) {
+    @Volatile
     private var transport: Transport? = null
+    @Volatile
     private var queryController: QueryController? = null
 
     /**

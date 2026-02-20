@@ -10,6 +10,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.takeWhile
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.JsonObject
 import java.io.Closeable
 
@@ -31,6 +32,7 @@ public value class CheckpointId(public val value: String)
  *     allowTools("Read", "Glob")
  *     bypassPermissions()
  * }.use { session ->
+ *     session.connect()
  *     session.send("Hello")
  *     session.receive().collect { msg ->
  *         when (msg) {
@@ -172,10 +174,15 @@ public class ClaudeSDKClient internal constructor(
     }
 
     /**
-     * Close the session and release all resources.
+     * Close the session and release all resources, including the CLI subprocess.
+     *
+     * This is the [Closeable] implementation, suitable for `use {}` blocks.
+     * Prefer [disconnect] from a coroutine context for a cleaner shutdown.
      */
     override fun close() {
+        if (!connected) return
         connected = false
+        runBlocking { internalClient.close() }
         scope.cancel()
     }
 

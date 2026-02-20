@@ -14,6 +14,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import java.io.BufferedReader
 import java.io.File
@@ -26,12 +27,15 @@ import kotlin.io.path.isRegularFile
  * [Transport] implementation that spawns the Claude Code CLI as a subprocess
  * and communicates via stdin/stdout using the `stream-json` protocol.
  */
-public class SubprocessTransport(
+internal class SubprocessTransport(
     private val options: ClaudeAgentOptions,
 ) : Transport {
 
+    @Volatile
     private var process: Process? = null
+    @Volatile
     private var stdinWriter: OutputStreamWriter? = null
+    @Volatile
     private var stdoutReader: BufferedReader? = null
 
     private val writeMutex = Mutex()
@@ -39,6 +43,7 @@ public class SubprocessTransport(
     @Volatile
     private var ready: Boolean = false
 
+    @Volatile
     private var exitError: Exception? = null
 
     private val cliPath: String = options.cliPath ?: findCli()
@@ -520,7 +525,14 @@ public class SubprocessTransport(
     private fun buildMcpConfigJson(servers: Map<String, McpServerConfig>): String {
         val mcpServers = buildJsonObject {
             for ((name, config) in servers) {
-                put(name, Json.encodeToJsonElement(McpServerConfig.serializer(), config))
+                when (config) {
+                    // SDK servers are handled in-process; send minimal config to CLI
+                    is McpSdkServerConfig -> put(name, buildJsonObject {
+                        put("type", JsonPrimitive("sdk"))
+                        put("name", JsonPrimitive(name))
+                    })
+                    else -> put(name, Json.encodeToJsonElement(McpServerConfig.serializer(), config))
+                }
             }
         }
         val wrapper = buildJsonObject {
@@ -544,6 +556,7 @@ public class SubprocessTransport(
 
         // SDK required env vars
         env["CLAUDE_CODE_ENTRYPOINT"] = "sdk-kt"
+        env["CLAUDE_AGENT_SDK_VERSION"] = SDK_VERSION
 
         // File checkpointing
         if (options.enableFileCheckpointing) {
@@ -614,9 +627,10 @@ public class SubprocessTransport(
         SettingSource.LOCAL -> "local"
     }
 
-    public companion object {
+    internal companion object {
         private const val DEFAULT_MAX_BUFFER_SIZE = 1024 * 1024 // 1 MB
-        public const val MINIMUM_CLAUDE_CODE_VERSION: String = "2.0.0"
+        internal const val MINIMUM_CLAUDE_CODE_VERSION: String = "2.0.0"
+        private const val SDK_VERSION = "0.1.0"
         private val VERSION_REGEX = Regex("""(\d+\.\d+\.\d+)""")
     }
 }

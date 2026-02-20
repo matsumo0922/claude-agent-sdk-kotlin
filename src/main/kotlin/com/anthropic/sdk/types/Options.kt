@@ -277,9 +277,9 @@ public sealed interface PermissionResult
 @SerialName("allow")
 public data class PermissionResultAllow(
     val behavior: String = "allow",
-    @SerialName("updated_input")
+    @SerialName("updatedInput")
     val updatedInput: JsonObject? = null,
-    @SerialName("updated_permissions")
+    @SerialName("updatedPermissions")
     val updatedPermissions: List<PermissionUpdate>? = null,
 ) : PermissionResult
 
