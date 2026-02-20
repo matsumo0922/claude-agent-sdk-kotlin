@@ -1,6 +1,7 @@
 package com.anthropic.sdk.internal
 
 import com.anthropic.sdk.internal.transport.Transport
+import com.anthropic.sdk.mcp.SdkMcpServer
 import com.anthropic.sdk.types.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -33,10 +34,14 @@ internal class InternalClient(
         t.connect()
         transport = t
 
+        // Extract SDK MCP servers from options
+        val sdkMcpServers = extractSdkMcpServers(configuredOptions)
+
         val qc = QueryController(
             transport = t,
             options = configuredOptions,
             isStreamingMode = true,
+            sdkMcpServers = sdkMcpServers,
         )
         qc.initialize(scope)
         queryController = qc
@@ -101,5 +106,18 @@ internal class InternalClient(
         }
 
         return options.copy(permissionPromptToolName = "stdio")
+    }
+
+    /**
+     * Extract in-process SDK MCP server instances from options.
+     */
+    private fun extractSdkMcpServers(options: ClaudeAgentOptions): Map<String, SdkMcpServer> {
+        val result = mutableMapOf<String, SdkMcpServer>()
+        for ((name, config) in options.mcpServers) {
+            if (config is McpSdkServerConfig) {
+                result[name] = config.server
+            }
+        }
+        return result
     }
 }

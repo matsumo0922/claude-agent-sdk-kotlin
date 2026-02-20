@@ -2,6 +2,7 @@ package com.anthropic.sdk.internal
 
 import com.anthropic.sdk.errors.ClaudeSDKException
 import com.anthropic.sdk.internal.transport.Transport
+import com.anthropic.sdk.mcp.SdkMcpServer
 import com.anthropic.sdk.types.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
@@ -25,6 +26,7 @@ internal class QueryController(
     private val transport: Transport,
     private val options: ClaudeAgentOptions,
     private val isStreamingMode: Boolean = true,
+    private val sdkMcpServers: Map<String, SdkMcpServer> = emptyMap(),
 ) {
     private val json = Json {
         ignoreUnknownKeys = true
@@ -121,13 +123,15 @@ internal class QueryController(
     /**
      * Send a user prompt to the CLI via the control protocol.
      */
-    suspend fun sendPrompt(prompt: String) {
+    suspend fun sendPrompt(prompt: String, sessionId: String = "") {
         val message = buildJsonObject {
-            put("type", "user_message")
+            put("type", "user")
+            put("session_id", sessionId)
             put("message", buildJsonObject {
                 put("role", "user")
                 put("content", prompt)
             })
+            put("parent_tool_use_id", JsonNull)
         }
         transport.write(json.encodeToString(JsonObject.serializer(), message) + "\n")
     }
@@ -473,17 +477,38 @@ internal class QueryController(
         val message = request["message"]?.jsonObject
             ?: throw ClaudeSDKException("Missing message for MCP request")
 
-        // TODO: Route to in-process SDK MCP server when MCP server support is implemented.
-        // For now, return a method-not-found error.
-        return buildJsonObject {
-            put("mcp_response", buildJsonObject {
+        val server = sdkMcpServers[serverName]
+        if (server == null) {
+            return buildJsonObject {
+                put("mcp_response", buildJsonObject {
+                    put("jsonrpc", "2.0")
+                    message["id"]?.let { put("id", it) }
+                    put("error", buildJsonObject {
+                        put("code", -32601)
+                        put("message", "Server '$serverName' not found")
+                    })
+                })
+            }
+        }
+
+        val response = try {
+            server.handleRequest(message) ?: buildJsonObject {
+                put("jsonrpc", "2.0")
+                put("result", JsonObject(emptyMap()))
+            }
+        } catch (e: Exception) {
+            buildJsonObject {
                 put("jsonrpc", "2.0")
                 message["id"]?.let { put("id", it) }
                 put("error", buildJsonObject {
-                    put("code", -32601)
-                    put("message", "SDK MCP server routing not yet implemented")
+                    put("code", -32603)
+                    put("message", e.message ?: "Internal error")
                 })
-            })
+            }
+        }
+
+        return buildJsonObject {
+            put("mcp_response", response)
         }
     }
 

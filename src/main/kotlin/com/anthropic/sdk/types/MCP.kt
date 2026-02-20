@@ -55,3 +55,18 @@ public data class McpHttpServerConfig(
     val url: String,
     val headers: Map<String, String> = emptyMap(),
 ) : McpServerConfig
+
+/**
+ * MCP server configuration for in-process SDK servers.
+ *
+ * These servers run inside the same JVM process and handle
+ * JSON-RPC requests directly without subprocess communication.
+ * Use [com.anthropic.sdk.mcp.createSdkMcpServer] to create an
+ * [SdkMcpServer] instance, then wrap it in this config.
+ *
+ * The [server] instance is used internally for routing; the CLI
+ * receives a minimal `{"type": "sdk"}` entry in the MCP config.
+ */
+public data class McpSdkServerConfig(
+    val server: com.anthropic.sdk.mcp.SdkMcpServer,
+) : McpServerConfig
