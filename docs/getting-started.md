@@ -25,7 +25,7 @@ cd claude-agent-sdk-kotlin
 
 ```kotlin
 dependencies {
-    implementation("com.anthropic:claude-agent-sdk-kotlin:0.1.0-SNAPSHOT")
+    implementation("me.matsumo.claude:agent:0.1.0-SNAPSHOT")
     // 推移的依存:
     // org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1
     // org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3
@@ -41,7 +41,7 @@ dependencies {
 最もシンプルな使い方です。プロンプトを送り、応答テキストを受け取ります。
 
 ```kotlin
-import com.anthropic.sdk.query
+import me.matsumo.claude.agent.query
 
 suspend fun main() {
     val answer = query("Kotlin のコルーチンを3行で説明してください")
@@ -54,8 +54,8 @@ suspend fun main() {
 コスト、トークン数、所要時間などのメタデータも取得できます。
 
 ```kotlin
-import com.anthropic.sdk.prompt
-import com.anthropic.sdk.types.Model
+import me.matsumo.claude.agent.prompt
+import me.matsumo.claude.agent.types.Model
 
 suspend fun main() {
     val result = prompt("量子コンピューティングとは？") {
@@ -77,8 +77,8 @@ suspend fun main() {
 双方向の対話的セッションを構築できます。`Closeable` を実装しているため `use {}` でリソースを自動解放できます。
 
 ```kotlin
-import com.anthropic.sdk.createSession
-import com.anthropic.sdk.types.*
+import me.matsumo.claude.agent.createSession
+import me.matsumo.claude.agent.types.*
 import kotlinx.coroutines.flow.collect
 
 suspend fun main() {
@@ -117,9 +117,9 @@ suspend fun main() {
 以前のセッション ID を使って会話を再開できます。
 
 ```kotlin
-import com.anthropic.sdk.createSession
-import com.anthropic.sdk.resumeSession
-import com.anthropic.sdk.types.*
+import me.matsumo.claude.agent.createSession
+import me.matsumo.claude.agent.resumeSession
+import me.matsumo.claude.agent.types.*
 import kotlinx.coroutines.flow.collect
 
 suspend fun main() {

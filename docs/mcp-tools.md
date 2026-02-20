@@ -29,8 +29,8 @@ Claude Code CLI
 ### 1. MCP サーバーの作成
 
 ```kotlin
-import com.anthropic.sdk.mcp.createSdkMcpServer
-import com.anthropic.sdk.annotations.Description
+import me.matsumo.claude.agent.mcp.createSdkMcpServer
+import me.matsumo.claude.agent.annotations.Description
 import kotlinx.serialization.Serializable
 
 // ツールの入力型を定義
@@ -67,8 +67,8 @@ val searchServer = createSdkMcpServer("search-tools", version = "1.0.0") {
 ### 2. セッションに登録
 
 ```kotlin
-import com.anthropic.sdk.createSession
-import com.anthropic.sdk.types.McpSdkServerConfig
+import me.matsumo.claude.agent.createSession
+import me.matsumo.claude.agent.types.McpSdkServerConfig
 
 createSession {
     mcpServers {
@@ -155,7 +155,7 @@ val server = createSdkMcpServer("tools") {
 `@Description` アノテーションを使うと、JSON Schema の `description` フィールドに説明文を追加できます。
 
 ```kotlin
-import com.anthropic.sdk.annotations.Description
+import me.matsumo.claude.agent.annotations.Description
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -216,7 +216,7 @@ data class FileArgs(
 MCP サーバー以外でも JSON Schema 生成を利用できます。
 
 ```kotlin
-import com.anthropic.sdk.mcp.jsonSchema
+import me.matsumo.claude.agent.mcp.jsonSchema
 
 @Serializable
 data class Config(
@@ -291,8 +291,8 @@ createSession {
 `runMcpServer()` を使うと、SDK サーバーを独立した MCP サーバープロセスとして実行できます。これは Claude Code の `McpStdioServerConfig` から参照する外部ツールとして使う場合に便利です。
 
 ```kotlin
-import com.anthropic.sdk.mcp.createSdkMcpServer
-import com.anthropic.sdk.mcp.runMcpServer
+import me.matsumo.claude.agent.mcp.createSdkMcpServer
+import me.matsumo.claude.agent.mcp.runMcpServer
 
 fun main() {
     val server = createSdkMcpServer("standalone") {

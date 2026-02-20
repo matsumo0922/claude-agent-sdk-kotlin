@@ -28,7 +28,7 @@ Kotlin 版 Claude Agent SDK のドキュメントです。
 ## 最小限のコード例
 
 ```kotlin
-import com.anthropic.sdk.query
+import me.matsumo.claude.agent.query
 
 suspend fun main() {
     val answer = query("日本の首都はどこですか？")

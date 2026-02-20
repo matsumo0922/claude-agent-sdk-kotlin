@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
-group = "com.anthropic"
+group = "me.matsumo.claude"
 version = "0.1.0-SNAPSHOT"
 
 kotlin {

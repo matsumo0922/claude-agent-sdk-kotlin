@@ -67,7 +67,7 @@ claude-agent-sdk-kotlin/
 ./gradlew test
 
 # 特定のテストクラスを実行
-./gradlew test --tests "com.anthropic.sdk.TypesTest"
+./gradlew test --tests "me.matsumo.claude.agent.TypesTest"
 
 # テスト名でフィルタ
 ./gradlew test --tests "*JsonSchemaGenerator*"
@@ -162,7 +162,7 @@ class MyFeatureTest {
 - **クラス/インターフェース**: PascalCase (`ClaudeSDKClient`, `SDKMessage`)
 - **関数/プロパティ**: camelCase (`sendPrompt`, `sessionId`)
 - **定数**: SCREAMING_SNAKE (`SDK_VERSION`)
-- **パッケージ**: 小文字ドット区切り (`com.anthropic.sdk.types`)
+- **パッケージ**: 小文字ドット区切り (`me.matsumo.claude.agent.types`)
 
 ### 可視性
 

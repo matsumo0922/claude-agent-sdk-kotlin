@@ -4,7 +4,7 @@ plugins {
     application
 }
 
-group = "com.anthropic"
+group = "me.matsumo.claude"
 version = "0.1.0-SNAPSHOT"
 
 kotlin {
@@ -18,5 +18,5 @@ dependencies {
 }
 
 application {
-    mainClass.set("com.anthropic.sdk.demo.MainKt")
+    mainClass.set("me.matsumo.claude.agent.demo.MainKt")
 }
