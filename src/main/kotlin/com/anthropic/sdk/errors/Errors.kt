@@ -68,6 +68,10 @@ public class CLIJsonDecodeException(
  * @param rawMessage The raw JSON string of the message that failed to parse.
  */
 public class MessageParseException(
-    public val rawMessage: String,
+    message: String,
+    public val rawMessage: String? = null,
     cause: Throwable? = null,
-) : ClaudeSDKException("Failed to parse message: ${rawMessage.take(200)}", cause)
+) : ClaudeSDKException(
+    if (rawMessage != null) "$message | Raw: ${rawMessage.take(200)}" else message,
+    cause,
+)
