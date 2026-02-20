@@ -1,5 +1,8 @@
 package com.anthropic.sdk.annotations
 
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerialInfo
+
 /**
  * Provides a human-readable description for a serializable property or class.
  *
@@ -20,6 +23,8 @@ package com.anthropic.sdk.annotations
  *
  * @param value The description text to include in the JSON Schema.
  */
-@Target(AnnotationTarget.PROPERTY, AnnotationTarget.CLASS, AnnotationTarget.VALUE_PARAMETER)
+@OptIn(ExperimentalSerializationApi::class)
+@SerialInfo
+@Target(AnnotationTarget.PROPERTY, AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 public annotation class Description(val value: String)

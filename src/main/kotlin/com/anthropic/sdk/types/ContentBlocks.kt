@@ -2,6 +2,7 @@ package com.anthropic.sdk.types
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 
 /**
@@ -56,7 +57,8 @@ public data class ToolUseBlock(
  * A tool result content block, representing the result of a tool invocation.
  *
  * @param toolUseId The identifier of the [ToolUseBlock] this result corresponds to.
- * @param content The result content, either a plain string or a list of content parts.
+ * @param content The result content as a [JsonElement]. May be a JSON string, a JSON array
+ *   of content parts, or `null` if no content is present.
  * @param isError Whether the tool execution resulted in an error.
  */
 @Serializable
@@ -64,7 +66,7 @@ public data class ToolUseBlock(
 public data class ToolResultBlock(
     @SerialName("tool_use_id")
     val toolUseId: String,
-    val content: String? = null,
+    val content: JsonElement? = null,
     @SerialName("is_error")
     val isError: Boolean? = null,
 ) : ContentBlock

@@ -54,6 +54,11 @@ internal class QueryController(
     private var initialized = false
     private var initializationResult: JsonObject? = null
 
+    /**
+     * Returns the initialization result from the CLI, if available.
+     */
+    fun getServerInfo(): JsonObject? = initializationResult
+
     // Track first result for proper stream closure when hooks/MCP are present
     private val firstResultDeferred = CompletableDeferred<Unit>()
 
@@ -156,10 +161,10 @@ internal class QueryController(
     /**
      * Change the AI model.
      */
-    suspend fun setModel(model: String) {
+    suspend fun setModel(model: String?) {
         sendControlRequest(buildJsonObject {
             put("subtype", "set_model")
-            put("model", model)
+            if (model != null) put("model", model) else put("model", JsonNull)
         })
     }
 

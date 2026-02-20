@@ -201,7 +201,7 @@ internal object MessageParser {
             )
             "tool_result" -> ToolResultBlock(
                 toolUseId = block["tool_use_id"]?.jsonPrimitive?.content ?: "",
-                content = block["content"]?.jsonPrimitive?.contentOrNull,
+                content = block["content"],
                 isError = block["is_error"]?.jsonPrimitive?.booleanOrNull,
             )
             else -> TextBlock(text = "[unknown block type: $blockType]")

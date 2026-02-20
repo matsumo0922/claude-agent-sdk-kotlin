@@ -137,10 +137,20 @@ public class ClaudeSDKClient internal constructor(
 
     /**
      * Change the model during the session.
+     *
+     * @param model The model name, or `null` to reset to the default.
      */
-    public suspend fun setModel(model: String) {
+    public suspend fun setModel(model: String?) {
         ensureConnected()
         controller!!.setModel(model)
+    }
+
+    /**
+     * Returns the server info from the CLI initialization handshake.
+     */
+    public fun getServerInfo(): JsonObject? {
+        ensureConnected()
+        return controller!!.getServerInfo()
     }
 
     /**
