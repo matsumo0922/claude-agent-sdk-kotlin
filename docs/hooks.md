@@ -175,7 +175,7 @@ data class PreToolUseHookInput(
     override val permissionMode: String?,
     val toolName: String,          // ツール名 ("Bash", "Read" など)
     val toolInput: JsonObject,     // ツールへの入力パラメータ
-    val toolUseId: String?,        // ツール使用 ID
+    val toolUseId: String,         // ツール使用 ID
 ) : BaseHookInput
 ```
 
@@ -190,7 +190,7 @@ data class PostToolUseHookInput(
     val toolName: String,
     val toolInput: JsonObject,
     val toolResponse: JsonElement?,  // ツールの実行結果
-    val toolUseId: String?,
+    val toolUseId: String,
 ) : BaseHookInput
 ```
 
@@ -204,8 +204,8 @@ data class PostToolUseFailureHookInput(
     override val permissionMode: String?,
     val toolName: String,
     val toolInput: JsonObject,
-    val toolUseId: String?,
-    val error: String?,             // エラーメッセージ
+    val toolUseId: String,
+    val error: String,              // エラーメッセージ
     val isInterrupt: Boolean?,      // 中断によるものか
 ) : BaseHookInput
 ```
@@ -218,7 +218,7 @@ data class UserPromptSubmitHookInput(
     override val transcriptPath: String,
     override val cwd: String,
     override val permissionMode: String?,
-    val prompt: String?,            // ユーザーのプロンプトテキスト
+    val prompt: String,             // ユーザーのプロンプトテキスト
 ) : BaseHookInput
 ```
 
@@ -230,9 +230,9 @@ data class NotificationHookInput(
     override val transcriptPath: String,
     override val cwd: String,
     override val permissionMode: String?,
-    val message: String?,           // 通知メッセージ
-    val title: String?,             // 通知タイトル
-    val notificationType: String?,  // 通知タイプ
+    val message: String,            // 通知メッセージ
+    val title: String?,             // 通知タイトル（nullable）
+    val notificationType: String,   // 通知タイプ
 ) : BaseHookInput
 ```
 

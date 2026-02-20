@@ -173,7 +173,7 @@ session.close()
 CLI サブプロセスのライフサイクルを管理します。
 
 - **CLI 検出**: `cliPath` 指定、`which claude`、標準パス検索の順で探索
-- **バージョン検証**: `claude --version` で 2.0.0 以上を確認
+- **バージョン検証**: `claude -v` で 2.0.0 以上を確認（未満の場合は stderr に警告を出力。例外はスローしない）
 - **コマンド構築**: `ClaudeAgentOptions` → CLI フラグの変換
 - **読み取り**: stdout からの JSON Lines を `Flow<String>` で提供
 - **書き込み**: `Mutex` による排他的 stdin 書き込み

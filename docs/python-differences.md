@@ -210,7 +210,7 @@ AsyncHookJSONOutput(async_=True, asyncTimeout=30000)
 SyncHookJSONOutput(continue_=True, reason="allowed")
 ```
 
-Kotlin 版では `HookJSONOutput` 1つに統合しています。Kotlin の `suspend` 関数は非同期実行を自然に表現でき、Python のように `async_` フラグで同期/非同期を分ける必要がないためです。
+Kotlin 版では Hook コールバックの戻り値は `HookJSONOutput` のみを使用します。`AsyncHookJSONOutput` クラスはシリアライズ型として定義されていますが、`HookCallback` の戻り値としては使用しません。Kotlin の `suspend` 関数は非同期実行を自然に表現でき、Python のように `async_` フラグで同期/非同期を分ける必要がないためです。
 
 ### フィールド名の変換
 

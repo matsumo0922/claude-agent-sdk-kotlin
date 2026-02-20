@@ -225,7 +225,9 @@ public data class StreamEvent(
 | `extraArgs` | `Map<String, String?>` | `{}` | 追加 CLI 引数 |
 | `maxBufferSize` | `Int?` | `null` | 最大バッファサイズ（バイト） |
 | `stderr` | `((String) -> Unit)?` | `null` | stderr コールバック |
-| `canUseTool` | suspend callback | `null` | ツールパーミッションコールバック |
+| `tools` | `Any?` | `null` | ツールセット設定（ツール名リストまたは `ToolsPreset`） |
+| `canUseTool` | `suspend (String, Map<String, Any?>, ToolPermissionContext) -> PermissionResult` | `null` | ツールパーミッションコールバック |
+| `permissionPromptToolName` | `String?` | `null` | カスタムパーミッションプロンプトツール名 |
 | `hooks` | `Map<HookEvent, List<HookMatcher>>?` | `null` | Hook 設定 |
 | `user` | `String?` | `null` | ユーザー識別子 |
 | `includePartialMessages` | `Boolean` | `false` | 部分メッセージを含めるか |

@@ -193,7 +193,7 @@ data class FileArgs(
 
 ## JSON Schema 生成
 
-`JsonSchemaGenerator` は `@Serializable` クラスの `SerialDescriptor` から JSON Schema (Draft 7) を生成します。
+`JsonSchemaGenerator` は `@Serializable` クラスの `SerialDescriptor` から JSON Schema を生成します。
 
 ### 対応する型マッピング
 

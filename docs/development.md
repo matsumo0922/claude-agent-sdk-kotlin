@@ -89,14 +89,14 @@ claude-agent-sdk-kotlin/
 
 | テストファイル | テスト数 | 検証内容 |
 |---|---|---|
-| `TypesTest` | 20 | enum シリアライズ、ThinkingConfig、McpServerConfig、ContentBlock、パーミッション型 |
-| `MessageParserTest` | 17 | System/Assistant/User/Result/StreamEvent メッセージのパース |
-| `JsonSchemaGeneratorTest` | 13 | プリミティブ型、enum、List、Map、ネスト、nullable、sealed class、@Description |
-| `McpServerTest` | 7 | サーバー初期化、ツール一覧、ツール実行、エラーハンドリング、JSON-RPC ディスパッチ |
-| `HooksTest` | 9 | HookOutput ヘルパー、HooksBuilder、マッチャー、タイムアウト、DSL 統合 |
-| `TransportTest` | 20 | CLI コマンド構築（全フラグ組み合わせ）、MCP 設定 JSON、環境変数 |
+| `TypesTest` | 25 | enum シリアライズ、ThinkingConfig、McpServerConfig、ContentBlock、パーミッション型 |
+| `MessageParserTest` | 18 | System/Assistant/User/Result/StreamEvent メッセージのパース |
+| `JsonSchemaGeneratorTest` | 11 | プリミティブ型、enum、List、Map、ネスト、nullable、sealed class、@Description |
+| `McpServerTest` | 8 | サーバー初期化、ツール一覧、ツール実行、エラーハンドリング、JSON-RPC ディスパッチ |
+| `HooksTest` | 11 | HookOutput ヘルパー、HooksBuilder、マッチャー、タイムアウト、DSL 統合 |
+| `TransportTest` | 23 | CLI コマンド構築（全フラグ組み合わせ）、MCP 設定 JSON、環境変数 |
 
-合計: **86 テスト**
+合計: **96 テスト**
 
 ### テストフレームワーク
 
@@ -232,8 +232,11 @@ createSession {
 
 ### バージョンが古い
 
+バージョンが `2.0.0` 未満の場合、SDK は stderr に以下の警告を出力します（例外はスローされません）:
+
 ```
-CLIConnectionException: Claude Code version X.Y.Z is below minimum 2.0.0
+Warning: Claude Code version X.Y.Z is unsupported in the Agent SDK.
+Minimum required version is 2.0.0. Some features may not work correctly.
 ```
 
 → CLI をアップデート:

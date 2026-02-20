@@ -125,7 +125,7 @@ Claude Agent SDK for Kotlin が対応している機能と、Python 版にはあ
 
 | 項目 | Python 版 | Kotlin 版 | 理由 |
 |---|---|---|---|
-| `AsyncHookJSONOutput` | 専用型あり | `HookJSONOutput` に統合 | Kotlin の suspend 関数が非同期を自然に処理するため、分離が不要 |
+| `AsyncHookJSONOutput` | 専用型あり | Hook コールバックでは `HookJSONOutput` のみ使用（`AsyncHookJSONOutput` クラスは存在するがコールバックの戻り値には使わない） | Kotlin の suspend 関数が非同期を自然に処理するため、分離が不要 |
 | `@tool` デコレータ | Python デコレータ | `tool<A, R>()` ジェネリック関数 | Kotlin にはデコレータがないため、ジェネリクスと reified 型パラメータで代替 |
 | `async with` コンテキストマネージャ | 自動接続 | `connect()` を明示呼び出し | Kotlin の `Closeable.use {}` はクリーンアップのみ担当する慣習のため |
 | `AsyncIterator` | Python 非同期イテレータ | `Flow<SDKMessage>` | Kotlin のリアクティブストリーム標準 |
