@@ -8,14 +8,14 @@ Kotlin 版 Claude Agent SDK のドキュメントです。
 
 | ドキュメント | 内容 |
 |---|---|
-| [クイックスタート](getting-started.md) | インストール、基本的な使い方、コード例 |
-| [アーキテクチャ](architecture.md) | レイヤー構成、通信プロトコル、データフロー |
-| [API リファレンス](api-reference.md) | 主要クラス・メソッド・型の一覧 |
-| [対応機能一覧](features.md) | 対応済み/未対応の機能リストと説明 |
-| [Hook システム](hooks.md) | フック機能の詳細と使い方 |
-| [MCP カスタムツール](mcp-tools.md) | インプロセス MCP サーバーによるカスタムツール定義 |
-| [Python 版との差異](python-differences.md) | Python SDK との設計・API・挙動の違い |
-| [開発ガイド](development.md) | ビルド方法、テスト、プロジェクト構成 |
+| [クイックスタート](docs/getting-started.md) | インストール、基本的な使い方、コード例 |
+| [アーキテクチャ](docs/architecture.md) | レイヤー構成、通信プロトコル、データフロー |
+| [API リファレンス](docs/api-reference.md) | 主要クラス・メソッド・型の一覧 |
+| [対応機能一覧](docs/features.md) | 対応済み/未対応の機能リストと説明 |
+| [Hook システム](docs/hooks.md) | フック機能の詳細と使い方 |
+| [MCP カスタムツール](docs/mcp-tools.md) | インプロセス MCP サーバーによるカスタムツール定義 |
+| [Python 版との差異](docs/python-differences.md) | Python SDK との設計・API・挙動の違い |
+| [開発ガイド](docs/development.md) | ビルド方法、テスト、プロジェクト構成 |
 
 ## 前提条件
 
