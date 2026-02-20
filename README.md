@@ -1,3 +1,5 @@
+### 🚧 このライブラリは未完成で、現在開発途中です！
+
 # Claude Agent SDK for Kotlin
 
 Kotlin 版 Claude Agent SDK のドキュメントです。
