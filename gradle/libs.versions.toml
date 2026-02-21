@@ -1,7 +1,7 @@
 [versions]
-kotlin = "2.3.10"
-coroutines = "1.10.2"
-serialization = "1.10.0"
+kotlin = "2.1.20"
+coroutines = "1.10.1"
+serialization = "1.8.1"
 mockk = "1.14.9"
 
 [libraries]
