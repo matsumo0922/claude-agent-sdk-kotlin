@@ -297,17 +297,17 @@ internal class QueryController(
 
                 val msgType = parsed["type"]?.jsonPrimitive?.contentOrNull ?: return@collect
 
-                when {
+                when (msgType) {
                     // Control response: match to pending request
-                    msgType == "control_response" -> {
+                    "control_response" -> {
                         handleControlResponse(parsed)
                     }
                     // Incoming control request from CLI
-                    msgType == "control_request" -> {
+                    "control_request" -> {
                         scope?.launch { handleControlRequest(parsed) }
                     }
                     // Cancel request
-                    msgType == "control_cancel_request" -> {
+                    "control_cancel_request" -> {
                         // TODO: cancellation support
                     }
                     // Regular SDK message
@@ -369,10 +369,9 @@ internal class QueryController(
     private fun handleControlResponse(data: JsonObject) {
         val response = data["response"]?.jsonObject ?: return
         val requestId = response["request_id"]?.jsonPrimitive?.contentOrNull ?: return
-
         val deferred = pendingResponses.remove(requestId) ?: return
-
         val subtype = response["subtype"]?.jsonPrimitive?.contentOrNull
+
         if (subtype == "error") {
             val errorMsg = response["error"]?.jsonPrimitive?.contentOrNull ?: "Unknown error"
             deferred.completeExceptionally(ClaudeSDKException(errorMsg))
@@ -403,11 +402,8 @@ internal class QueryController(
     }
 
     private suspend fun handleCanUseTool(request: JsonObject): JsonObject {
-        val canUseTool = options.canUseTool
-            ?: throw ClaudeSDKException("canUseTool callback is not provided")
-
-        val toolName = request["tool_name"]?.jsonPrimitive?.content
-            ?: throw ClaudeSDKException("Missing tool_name in can_use_tool request")
+        val canUseTool = options.canUseTool ?: throw ClaudeSDKException("canUseTool callback is not provided")
+        val toolName = request["tool_name"]?.jsonPrimitive?.content ?: throw ClaudeSDKException("Missing tool_name in can_use_tool request")
         val input = request["input"]?.jsonObject ?: JsonObject(emptyMap())
         val suggestions = request["permission_suggestions"]?.jsonArray
             ?.mapNotNull { element ->
@@ -417,9 +413,8 @@ internal class QueryController(
 
         val inputMap: Map<String, Any?> = input.toMap()
         val context = ToolPermissionContext(signal = null, suggestions = suggestions)
-        val result = canUseTool(toolName, inputMap, context)
 
-        return when (result) {
+        return when (val result = canUseTool(toolName, inputMap, context)) {
             is PermissionResultAllow -> buildJsonObject {
                 put("behavior", "allow")
                 put("updatedInput", result.updatedInput ?: input)

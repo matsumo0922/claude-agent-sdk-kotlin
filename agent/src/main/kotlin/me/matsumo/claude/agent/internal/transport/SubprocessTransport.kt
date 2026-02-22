@@ -154,17 +154,14 @@ internal class SubprocessTransport(
     }
 
     override fun readMessages(): Flow<String> = flow {
-        val reader = stdoutReader
-            ?: throw CLIConnectionException("Not connected")
-
+        val reader = stdoutReader ?: throw CLIConnectionException("Not connected")
         var jsonBuffer = ""
 
         try {
             while (true) {
-                val rawLine = withContext(Dispatchers.IO) { reader.readLine() }
-                    ?: break // EOF
-
+                val rawLine = withContext(Dispatchers.IO) { reader.readLine() } ?: break // EOF
                 val line = rawLine.trim()
+
                 if (line.isEmpty()) continue
 
                 // The stream may deliver multiple JSON objects per read or split
@@ -205,7 +202,7 @@ internal class SubprocessTransport(
         val exitCode = withContext(Dispatchers.IO) { proc.waitFor() }
         if (exitCode != 0) {
             exitError = ProcessException(
-                "Command failed",
+                message = "Command failed",
                 exitCode = exitCode,
                 stderr = "Check stderr output for details",
             )
