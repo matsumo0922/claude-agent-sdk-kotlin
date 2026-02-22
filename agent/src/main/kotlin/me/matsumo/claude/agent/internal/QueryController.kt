@@ -33,6 +33,7 @@ import kotlinx.serialization.json.put
 import me.matsumo.claude.agent.errors.ClaudeSDKException
 import me.matsumo.claude.agent.internal.transport.Transport
 import me.matsumo.claude.agent.mcp.SdkMcpServer
+import me.matsumo.claude.agent.types.AssistantMessage
 import me.matsumo.claude.agent.types.BaseHookInput
 import me.matsumo.claude.agent.types.ClaudeAgentOptions
 import me.matsumo.claude.agent.types.HookCallback
@@ -55,6 +56,7 @@ import me.matsumo.claude.agent.types.StopHookInput
 import me.matsumo.claude.agent.types.SubagentStartHookInput
 import me.matsumo.claude.agent.types.SubagentStopHookInput
 import me.matsumo.claude.agent.types.ToolPermissionContext
+import me.matsumo.claude.agent.types.ToolUseBlock
 import me.matsumo.claude.agent.types.UserPromptSubmitHookInput
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
@@ -86,6 +88,10 @@ internal class QueryController(
     private val hookCallbacks = ConcurrentHashMap<String, HookCallback>()
     private val nextCallbackId = AtomicInteger(0)
     private val requestCounter = AtomicInteger(0)
+
+    // --- ToolUse tracking for parentToolName enrichment ---
+
+    private val toolUseIndex = ConcurrentHashMap<String, String>()
 
     // --- Message channel ---
 
@@ -272,6 +278,7 @@ internal class QueryController(
         closed = true
         readJob?.cancel()
         messageChannel.close()
+        toolUseIndex.clear()
         transport.close()
     }
 
@@ -312,7 +319,7 @@ internal class QueryController(
                         try {
                             val parseResult = MessageParser.parseLine(line)
                             if (parseResult is MessageParser.ParseResult.Message) {
-                                messageChannel.send(parseResult.message)
+                                messageChannel.send(enrichMessage(parseResult.message))
                             }
                         } catch (_: Exception) {
                             // Skip unparseable messages
@@ -331,6 +338,30 @@ internal class QueryController(
             firstResultDeferred.complete(Unit) // Unblock streamInput on abnormal exit
             messageChannel.close()
         }
+    }
+
+    /**
+     * Enrich an [SDKMessage] with derived fields not present in the wire format.
+     *
+     * For [AssistantMessage]s, indexes all [ToolUseBlock]s by ID for future lookup,
+     * then resolves [AssistantMessage.parentToolName] from the index.
+     */
+    private fun enrichMessage(message: SDKMessage): SDKMessage {
+        if (message is AssistantMessage) {
+            for (block in message.content) {
+                if (block is ToolUseBlock && block.id.isNotBlank()) {
+                    toolUseIndex[block.id] = block.name
+                }
+            }
+            val pid = message.parentToolUseId
+            if (pid != null) {
+                val toolName = toolUseIndex[pid]
+                if (toolName != null) {
+                    return message.copy(parentToolName = toolName)
+                }
+            }
+        }
+        return message
     }
 
     // --- Control response handling ---

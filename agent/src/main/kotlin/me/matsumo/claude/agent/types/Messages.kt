@@ -2,6 +2,7 @@ package me.matsumo.claude.agent.types
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 
@@ -87,6 +88,8 @@ public data class AssistantMessage(
     val model: String = "",
     @SerialName("parent_tool_use_id")
     val parentToolUseId: String? = null,
+    @Transient
+    val parentToolName: String? = null,
     val error: AssistantMessageError? = null,
 ) : SDKMessage {
     /**
