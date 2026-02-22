@@ -198,6 +198,22 @@ internal class QueryController(
     }
 
     /**
+     * Send a user prompt with content blocks (text, image, document) to the CLI.
+     */
+    suspend fun sendPrompt(contentBlocks: List<JsonObject>, sessionId: String = "") {
+        val message = buildJsonObject {
+            put("type", "user")
+            put("session_id", sessionId)
+            put("message", buildJsonObject {
+                put("role", "user")
+                put("content", JsonArray(contentBlocks))
+            })
+            put("parent_tool_use_id", JsonNull)
+        }
+        transport.write(json.encodeToString(JsonObject.serializer(), message) + "\n")
+    }
+
+    /**
      * Send an interrupt control request.
      */
     suspend fun interrupt() {

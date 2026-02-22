@@ -87,6 +87,17 @@ public class ClaudeSDKClient internal constructor(
     }
 
     /**
+     * Send a user prompt with content blocks (text, image, document) to Claude.
+     *
+     * @param contentBlocks The content blocks to send.
+     * @throws CLIConnectionException if the client is not connected.
+     */
+    public suspend fun send(contentBlocks: List<JsonObject>) {
+        ensureConnected()
+        controller!!.sendPrompt(contentBlocks)
+    }
+
+    /**
      * Returns a [Flow] of [SDKMessage]s from the current turn.
      *
      * The flow emits messages as they arrive from the CLI. Collect it to
