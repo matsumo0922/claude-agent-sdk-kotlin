@@ -11,33 +11,41 @@ import kotlinx.serialization.json.JsonObject
  * overload in [ClaudeAgentOptions] for models not listed here.
  */
 @Serializable
-public enum class Model(public val modelId: String) {
+public enum class Model(
+    public val modelId: String,
+    public val displayName: String,
+    public val description: String,
+) {
     @SerialName("sonnet")
-    SONNET("sonnet"),
+    SONNET("sonnet", "Sonnet", "Balanced speed and intelligence"),
 
     @SerialName("opus")
-    OPUS("opus"),
+    OPUS("opus", "Opus", "Most intelligent, best for complex tasks"),
 
     @SerialName("haiku")
-    HAIKU("haiku"),
+    HAIKU("haiku", "Haiku", "Fastest, best for simple tasks"),
 }
 
 /**
  * Permission mode governing how tool use is authorized.
  */
 @Serializable
-public enum class PermissionMode {
+public enum class PermissionMode(
+    public val modeId: String,
+    public val displayName: String,
+    public val description: String,
+) {
     @SerialName("default")
-    DEFAULT,
+    DEFAULT("default", "Auto", "Asks for permission on each action"),
 
     @SerialName("acceptEdits")
-    ACCEPT_EDITS,
+    ACCEPT_EDITS("acceptEdits", "Accept Edits", "Automatically accepts file edits"),
 
     @SerialName("plan")
-    PLAN,
+    PLAN("plan", "Plan Mode", "Requires plan approval before execution"),
 
     @SerialName("bypassPermissions")
-    BYPASS_PERMISSIONS,
+    BYPASS_PERMISSIONS("bypassPermissions", "Bypass Permissions", "Skips all permission prompts"),
 }
 
 /**
