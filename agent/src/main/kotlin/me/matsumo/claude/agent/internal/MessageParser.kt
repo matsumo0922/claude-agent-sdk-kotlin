@@ -123,6 +123,8 @@ internal object MessageParser {
                 }
             }
 
+            val uuid = data.optionalString("uuid")
+
             val messageObj = data["message"]?.jsonObject
                 ?: throw MessageParseException("Assistant message missing 'message' field", rawLine)
 
@@ -135,6 +137,7 @@ internal object MessageParser {
                 content = contentBlocks,
                 model = model,
                 parentToolUseId = parentToolUseId,
+                uuid = uuid,
                 error = error,
             )
         } catch (e: MessageParseException) {
@@ -242,4 +245,16 @@ internal object MessageParser {
 
     private fun JsonObject.optionalString(key: String): String? =
         this[key]?.jsonPrimitive?.contentOrNull
+}
+
+/**
+ * Parse a single JSONL transcript line into an [SDKMessage], or null if unparseable.
+ */
+public fun parseTranscriptLine(line: String): SDKMessage? {
+    if (line.isBlank()) return null
+    return try {
+        (MessageParser.parseLine(line) as? MessageParser.ParseResult.Message)?.message
+    } catch (_: Exception) {
+        null
+    }
 }

@@ -90,6 +90,7 @@ public data class AssistantMessage(
     val parentToolUseId: String? = null,
     @Transient
     val parentToolName: String? = null,
+    val uuid: String? = null,
     val error: AssistantMessageError? = null,
 ) : SDKMessage {
     /**
