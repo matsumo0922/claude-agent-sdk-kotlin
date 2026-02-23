@@ -43,8 +43,10 @@ internal class SubprocessTransport(
 
     @Volatile
     private var process: Process? = null
+
     @Volatile
     private var stdinWriter: OutputStreamWriter? = null
+
     @Volatile
     private var stdoutReader: BufferedReader? = null
 
@@ -93,7 +95,7 @@ internal class SubprocessTransport(
 
             // Start stderr reader if callback is configured or debug is on
             val shouldReadStderr = options.stderr != null ||
-                options.extraArgs.containsKey("debug-to-stderr")
+                    options.extraArgs.containsKey("debug-to-stderr")
             if (shouldReadStderr) {
                 startStderrReader(proc)
             }
@@ -278,11 +280,11 @@ internal class SubprocessTransport(
 
         throw CLINotFoundException(
             "Claude Code not found. Install with:\n" +
-                "  npm install -g @anthropic-ai/claude-code\n" +
-                "\nIf already installed locally, try:\n" +
-                "  export PATH=\"\$HOME/node_modules/.bin:\$PATH\"\n" +
-                "\nOr provide the path via ClaudeAgentOptions:\n" +
-                "  ClaudeAgentOptions(cliPath = \"/path/to/claude\")",
+                    "  npm install -g @anthropic-ai/claude-code\n" +
+                    "\nIf already installed locally, try:\n" +
+                    "  export PATH=\"\$HOME/node_modules/.bin:\$PATH\"\n" +
+                    "\nOr provide the path via ClaudeAgentOptions:\n" +
+                    "  ClaudeAgentOptions(cliPath = \"/path/to/claude\")",
         )
     }
 
@@ -308,8 +310,8 @@ internal class SubprocessTransport(
                 if (compareParts(versionParts, minParts) < 0) {
                     System.err.println(
                         "Warning: Claude Code version $version is unsupported in the Agent SDK. " +
-                            "Minimum required version is $MINIMUM_CLAUDE_CODE_VERSION. " +
-                            "Some features may not work correctly."
+                                "Minimum required version is $MINIMUM_CLAUDE_CODE_VERSION. " +
+                                "Some features may not work correctly."
                     )
                 }
             }
@@ -336,8 +338,14 @@ internal class SubprocessTransport(
 
         // System prompt
         when (val sp = options.systemPrompt) {
-            null -> cmd.addAll(listOf("--system-prompt", ""))
-            is String -> cmd.addAll(listOf("--system-prompt", sp))
+            null -> {
+                // Do nothing
+            }
+
+            is String -> {
+                cmd.addAll(listOf("--system-prompt", sp))
+            }
+
             is SystemPromptPreset -> {
                 if (sp.append != null) {
                     cmd.addAll(listOf("--append-system-prompt", sp.append))
@@ -347,15 +355,19 @@ internal class SubprocessTransport(
 
         // Tools
         when (val tools = options.tools) {
-            null -> { /* default tools */ }
+            null -> {
+                // default tools
+            }
+
             is List<*> -> {
-                if (tools.isEmpty()) {
-                    cmd.addAll(listOf("--tools", ""))
-                } else {
+                if (tools.isNotEmpty()) {
                     cmd.addAll(listOf("--tools", tools.joinToString(",")))
                 }
             }
-            is ToolsPreset -> cmd.addAll(listOf("--tools", "default"))
+
+            is ToolsPreset -> {
+                cmd.addAll(listOf("--tools", "default"))
+            }
         }
 
         if (options.allowedTools.isNotEmpty()) {
@@ -427,8 +439,10 @@ internal class SubprocessTransport(
         }
 
         // Setting sources
-        val sourcesValue = options.settingSources?.joinToString(",") { settingSourceToString(it) } ?: ""
-        cmd.addAll(listOf("--setting-sources", sourcesValue))
+        if (options.settingSources != null) {
+            val sourcesValue = options.settingSources.joinToString(",") { settingSourceToString(it) }
+            cmd.addAll(listOf("--setting-sources", sourcesValue))
+        }
 
         // Plugins
         for (plugin in options.plugins) {
@@ -457,6 +471,7 @@ internal class SubprocessTransport(
                 is ThinkingConfig.Adaptive -> {
                     if (resolvedMaxThinkingTokens == null) resolvedMaxThinkingTokens = 32_000
                 }
+
                 is ThinkingConfig.Enabled -> resolvedMaxThinkingTokens = thinking.budgetTokens
                 is ThinkingConfig.Disabled -> resolvedMaxThinkingTokens = 0
             }
@@ -477,6 +492,8 @@ internal class SubprocessTransport(
 
         // Always use streaming stdin
         cmd.addAll(listOf("--input-format", "stream-json"))
+
+        println("Executing command: ${cmd.joinToString(" ")}")
 
         return cmd
     }
@@ -538,6 +555,7 @@ internal class SubprocessTransport(
                         put("type", JsonPrimitive("sdk"))
                         put("name", JsonPrimitive(name))
                     })
+
                     else -> put(name, Json.encodeToJsonElement(McpServerConfig.serializer(), config))
                 }
             }
