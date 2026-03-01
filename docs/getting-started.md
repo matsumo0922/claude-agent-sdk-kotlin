@@ -27,8 +27,8 @@ cd claude-agent-sdk-kotlin
 dependencies {
     implementation("me.matsumo.claude:agent:0.1.0-SNAPSHOT")
     // 推移的依存:
-    // org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1
-    // org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3
+    // org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1
+    // org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1
 }
 ```
 

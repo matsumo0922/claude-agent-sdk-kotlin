@@ -107,6 +107,33 @@ Claude Agent SDK for Kotlin が対応している機能と、Python 版にはあ
 | サーバー情報取得 | `getServerInfo()` で初期化情報を取得 | 対応済み |
 | ファイルチェックポイント | `enableFileCheckpointing` + `rewindFiles()` | 対応済み |
 
+### API ストリーミングイベント
+
+| 機能 | 説明 | 状態 |
+|---|---|---|
+| ApiStreamEvent | `StreamEvent.event` の型安全パーサー (`ApiStreamEvent` sealed interface) | 対応済み |
+| MessageStart | メッセージ開始イベント（モデル名、初期 usage 情報） | 対応済み |
+| ContentBlockStart/Stop | コンテンツブロックの開始・終了イベント | 対応済み |
+| ContentBlockDelta | テキスト差分の増分更新イベント | 対応済み |
+| MessageDelta | メッセージ停止理由・累計 usage 情報 | 対応済み |
+| MessageUsage | 入力/出力トークン、キャッシュ情報を型安全に取得 | 対応済み |
+
+### Content Block Builder
+
+| 機能 | 説明 | 状態 |
+|---|---|---|
+| ContentBlocksBuilder DSL | `contentBlocks { text(); image(); document() }` で型安全にブロック構築 | 対応済み |
+| テキストブロック | `text("...")` でテキストコンテンツブロック生成 | 対応済み |
+| 画像ブロック | `image(mediaType, data)` で Base64 画像ブロック生成 | 対応済み |
+| ドキュメントブロック | `document(mediaType, data, fileName)` でドキュメントブロック生成 | 対応済み |
+
+### Sub-Agent サポート
+
+| 機能 | 説明 | 状態 |
+|---|---|---|
+| SubAgentIdResolver | hookToolUseId と parentToolUseId の FIFO マッピング（thread-safe） | 対応済み |
+| SubAgentPaths | Sub-agent transcript path の構築ユーティリティ | 対応済み |
+
 ### その他
 
 | 機能 | 説明 | 状態 |
@@ -118,6 +145,7 @@ Claude Agent SDK for Kotlin が対応している機能と、Python 版にはあ
 | ベータ機能 | `SdkBeta.CONTEXT_1M` (1M コンテキスト) | 対応済み |
 | DSL ビルダー | `SessionOptionsBuilder` による型安全な設定 | 対応済み |
 | リソース管理 | `Closeable` + `use {}` による自動解放 | 対応済み |
+| デモスイート | 20+ のデモアプリケーション (`demo/` モジュール) | 対応済み |
 
 ---
 

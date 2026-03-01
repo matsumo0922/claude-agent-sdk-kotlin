@@ -23,7 +23,7 @@ Kotlin 版 Claude Agent SDK のドキュメントです。
 
 - **JDK 17** 以上
 - **Claude Code CLI** 2.0.0 以上がインストール済みであること
-- Kotlin 2.0.21 / kotlinx.serialization 1.7.3 / kotlinx.coroutines 1.8.1
+- Kotlin 2.3.0 / kotlinx.serialization 1.8.1 / kotlinx.coroutines 1.10.1
 
 ## 最小限のコード例
 

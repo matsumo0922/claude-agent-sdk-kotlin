@@ -4,45 +4,59 @@
 
 ```
 claude-agent-sdk-kotlin/
-├── build.gradle.kts                    # ビルド設定
-├── settings.gradle.kts                 # プロジェクト設定
-├── gradle/                             # Gradle Wrapper
+├── build.gradle.kts                    # ルートビルド設定
+├── settings.gradle.kts                 # プロジェクト設定 (agent, demo モジュール)
+├── gradle/
+│   └── libs.versions.toml             # バージョンカタログ
 ├── CLAUDE.md                           # AI エージェント向けプロジェクトコンテキスト
-├── DesignDoc.md                        # SDK 設計ドキュメント
 ├── docs/                               # ドキュメント（本フォルダ）
-└── src/
-    ├── main/kotlin/com/anthropic/sdk/
-    │   ├── ClaudeAgentSDK.kt           # トップレベル関数 (query, prompt, createSession, resumeSession)
-    │   ├── ClaudeSDKClient.kt          # 双方向セッションクライアント
-    │   ├── annotations/
-    │   │   └── Description.kt          # @Description アノテーション
-    │   ├── errors/
-    │   │   └── Errors.kt              # 例外階層
-    │   ├── internal/
-    │   │   ├── InternalClient.kt       # Transport + QueryController のファサード
-    │   │   ├── MessageParser.kt        # JSON → SDKMessage パーサー
-    │   │   ├── QueryController.kt      # 双方向制御プロトコル
-    │   │   └── transport/
-    │   │       ├── Transport.kt        # Transport インターフェース
-    │   │       └── SubprocessTransport.kt  # CLI サブプロセス実装
-    │   ├── mcp/
-    │   │   ├── McpServer.kt            # SdkMcpServer, createSdkMcpServer(), runMcpServer()
-    │   │   └── JsonSchemaGenerator.kt  # JSON Schema 生成
-    │   └── types/
-    │       ├── Agents.kt              # AgentDefinition
-    │       ├── ContentBlocks.kt       # ContentBlock sealed hierarchy
-    │       ├── Hooks.kt               # Hook 型, HooksBuilder DSL
-    │       ├── MCP.kt                 # McpServerConfig sealed hierarchy
-    │       ├── Messages.kt            # SDKMessage sealed hierarchy
-    │       ├── Options.kt             # ClaudeAgentOptions, SessionOptionsBuilder, enum 型
-    │       └── Results.kt             # PromptResult
-    └── test/kotlin/com/anthropic/sdk/
-        ├── TypesTest.kt               # 型のシリアライズ/デシリアライズテスト (20 tests)
-        ├── MessageParserTest.kt        # メッセージパーサーテスト (17 tests)
-        ├── JsonSchemaGeneratorTest.kt  # JSON Schema 生成テスト (13 tests)
-        ├── McpServerTest.kt           # MCP サーバーテスト (7 tests)
-        ├── HooksTest.kt              # Hook システムテスト (9 tests)
-        └── TransportTest.kt          # CLI コマンド構築テスト (20 tests)
+├── agent/                              # SDK 本体モジュール
+│   ├── build.gradle.kts
+│   └── src/
+│       ├── main/kotlin/me/matsumo/claude/agent/
+│       │   ├── ClaudeAgentSDK.kt           # トップレベル関数 (query, prompt, createSession, resumeSession)
+│       │   ├── ClaudeSDKClient.kt          # 双方向セッションクライアント
+│       │   ├── annotations/
+│       │   │   └── Description.kt          # @Description アノテーション
+│       │   ├── errors/
+│       │   │   └── Errors.kt              # 例外階層
+│       │   ├── internal/
+│       │   │   ├── InternalClient.kt       # Transport + QueryController のファサード
+│       │   │   ├── MessageParser.kt        # JSON → SDKMessage パーサー
+│       │   │   ├── QueryController.kt      # 双方向制御プロトコル
+│       │   │   └── transport/
+│       │   │       ├── Transport.kt        # Transport インターフェース
+│       │   │       └── SubprocessTransport.kt  # CLI サブプロセス実装
+│       │   ├── mcp/
+│       │   │   ├── McpServer.kt            # SdkMcpServer, createSdkMcpServer(), runMcpServer()
+│       │   │   └── JsonSchemaGenerator.kt  # JSON Schema 生成
+│       │   └── types/
+│       │       ├── Agents.kt              # AgentDefinition
+│       │       ├── ContentBlocks.kt       # ContentBlock sealed hierarchy
+│       │       ├── Hooks.kt               # Hook 型, HooksBuilder DSL
+│       │       ├── MCP.kt                 # McpServerConfig sealed hierarchy
+│       │       ├── Messages.kt            # SDKMessage sealed hierarchy
+│       │       ├── Options.kt             # ClaudeAgentOptions, SessionOptionsBuilder, enum 型
+│       │       ├── Results.kt             # PromptResult
+│       │       ├── ApiStreamEvents.kt     # Anthropic API streaming event types
+│       │       ├── ContentBlockBuilder.kt # Content block builder DSL
+│       │       ├── SubAgentIdResolver.kt  # Sub-agent ID 解決 (hookToolUseId ↔ parentToolUseId)
+│       │       └── SubAgentPaths.kt       # Sub-agent transcript path utilities
+│       └── test/kotlin/me/matsumo/claude/agent/
+│           ├── TypesTest.kt               # 型のシリアライズ/デシリアライズテスト (25 tests)
+│           ├── MessageParserTest.kt        # メッセージパーサーテスト (18 tests)
+│           ├── JsonSchemaGeneratorTest.kt  # JSON Schema 生成テスト (11 tests)
+│           ├── McpServerTest.kt           # MCP サーバーテスト (8 tests)
+│           ├── HooksTest.kt              # Hook システムテスト (11 tests)
+│           ├── TransportTest.kt          # CLI コマンド構築テスト (23 tests)
+│           ├── ApiStreamEventTest.kt      # API streaming event テスト (9 tests)
+│           ├── ContentBlockBuilderTest.kt # Content block builder テスト (6 tests)
+│           ├── SubAgentIdResolverTest.kt  # Sub-agent ID 解決テスト (6 tests)
+│           └── SubAgentPathsTest.kt       # Sub-agent path テスト (3 tests)
+└── demo/                               # デモアプリケーション (20+ demos)
+    ├── build.gradle.kts
+    └── src/main/kotlin/me/matsumo/claude/agent/demo/
+        └── Main.kt                     # デモランナー
 ```
 
 ---
@@ -95,8 +109,12 @@ claude-agent-sdk-kotlin/
 | `McpServerTest` | 8 | サーバー初期化、ツール一覧、ツール実行、エラーハンドリング、JSON-RPC ディスパッチ |
 | `HooksTest` | 11 | HookOutput ヘルパー、HooksBuilder、マッチャー、タイムアウト、DSL 統合 |
 | `TransportTest` | 23 | CLI コマンド構築（全フラグ組み合わせ）、MCP 設定 JSON、環境変数 |
+| `ApiStreamEventTest` | 9 | API streaming event の JSON パース |
+| `ContentBlockBuilderTest` | 6 | Content block DSL ビルダー |
+| `SubAgentIdResolverTest` | 6 | hookToolUseId ↔ parentToolUseId の FIFO 解決 |
+| `SubAgentPathsTest` | 3 | Sub-agent transcript path 構築 |
 
-合計: **96 テスト**
+合計: **120 テスト**
 
 ### テストフレームワーク
 
@@ -134,23 +152,25 @@ class MyFeatureTest {
 
 | ライブラリ | バージョン | 用途 |
 |---|---|---|
-| `kotlinx-coroutines-core` | 1.8.1 | コルーチン、Flow、Channel、Mutex |
-| `kotlinx-serialization-json` | 1.7.3 | JSON シリアライズ/デシリアライズ |
+| `kotlinx-coroutines-core` | 1.10.1 | コルーチン、Flow、Channel、Mutex |
+| `kotlinx-serialization-json` | 1.8.1 | JSON シリアライズ/デシリアライズ |
 
 ### テスト
 
 | ライブラリ | バージョン | 用途 |
 |---|---|---|
 | `kotlin-test` | (Kotlin バージョンに従う) | JUnit 5 統合、アサーション |
-| `kotlinx-coroutines-test` | 1.8.1 | `runTest`, テストディスパッチャ |
-| `mockk` | 1.13.13 | モック/スタブ |
+| `kotlinx-coroutines-test` | 1.10.1 | `runTest`, テストディスパッチャ |
+| `mockk` | 1.14.9 | モック/スタブ |
 
 ### Kotlin & プラグイン
 
+依存バージョンは `gradle/libs.versions.toml` で一元管理されています。
+
 | 項目 | バージョン |
 |---|---|
-| Kotlin | 2.0.21 |
-| kotlinx.serialization プラグイン | 2.0.21 |
+| Kotlin | 2.3.0 |
+| kotlinx.serialization プラグイン | 2.3.0 |
 | JVM ツールチェイン | 17 |
 
 ---
