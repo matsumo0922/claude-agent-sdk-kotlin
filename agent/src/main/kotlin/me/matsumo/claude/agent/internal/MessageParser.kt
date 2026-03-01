@@ -17,6 +17,7 @@ import me.matsumo.claude.agent.errors.CLIJsonDecodeException
 import me.matsumo.claude.agent.errors.MessageParseException
 import me.matsumo.claude.agent.types.AssistantMessage
 import me.matsumo.claude.agent.types.AssistantMessageError
+import me.matsumo.claude.agent.types.CompactionBlock
 import me.matsumo.claude.agent.types.ContentBlock
 import me.matsumo.claude.agent.types.ResultMessage
 import me.matsumo.claude.agent.types.SDKMessage
@@ -229,6 +230,9 @@ internal object MessageParser {
                 toolUseId = block["tool_use_id"]?.jsonPrimitive?.content ?: "",
                 content = block["content"],
                 isError = block["is_error"]?.jsonPrimitive?.booleanOrNull,
+            )
+            "compaction" -> CompactionBlock(
+                content = block["content"]?.jsonPrimitive?.content ?: "",
             )
             else -> TextBlock(text = "[unknown block type: $blockType]")
         }

@@ -70,3 +70,18 @@ public data class ToolResultBlock(
     @SerialName("is_error")
     val isError: Boolean? = null,
 ) : ContentBlock
+
+/**
+ * A compaction content block, containing a summary of the conversation after compaction.
+ *
+ * When a conversation is compacted (via `/compact` or automatically), the CLI generates
+ * a summary and embeds it in a `compaction` content block. This summary replaces the
+ * earlier conversation history.
+ *
+ * @param content The summary text of the compacted conversation.
+ */
+@Serializable
+@SerialName("compaction")
+public data class CompactionBlock(
+    val content: String,
+) : ContentBlock
