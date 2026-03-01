@@ -16,15 +16,15 @@ Internal Client (InternalClient)
     ↓
 Query Controller (handles control protocol, hooks, permissions, MCP)
     ↓
-Transport (SubprocessCLITransport)
+Transport (SubprocessTransport)
     ↓
 Claude Code CLI (subprocess via ProcessBuilder)
 ```
 
 ### Module Structure
 ```
-claude-agent-sdk/                    # Main library module
-  src/main/kotlin/com/anthropic/sdk/
+agent/                               # Main library module
+  src/main/kotlin/me/matsumo/claude/agent/
     ├── ClaudeAgentSDK.kt           # Public API: query(), prompt(), createSession(), resumeSession()
     ├── ClaudeSDKClient.kt          # Bidirectional stateful client (multi-turn sessions)
     ├── types/
@@ -34,7 +34,11 @@ claude-agent-sdk/                    # Main library module
     │   ├── Hooks.kt                # Hook types, HookOutput, HookInput, matchers
     │   ├── MCP.kt                  # MCP server configs (Stdio, SSE, HTTP, SDK)
     │   ├── Agents.kt               # Agent definitions
-    │   └── Results.kt              # ResultMessage, cost tracking
+    │   ├── Results.kt              # ResultMessage, cost tracking
+    │   ├── ApiStreamEvents.kt     # Anthropic API streaming event types (MessageStart, ContentBlockDelta 等)
+    │   ├── ContentBlockBuilder.kt # Type-safe DSL for building content blocks (text, image, document)
+    │   ├── SubAgentIdResolver.kt  # hookToolUseId ↔ parentToolUseId の FIFO マッピング (thread-safe)
+    │   └── SubAgentPaths.kt       # Sub-agent transcript path construction utilities
     ├── internal/
     │   ├── InternalClient.kt       # Internal client coordinating transport + query
     │   ├── QueryController.kt      # Control protocol handler (hooks, permissions, MCP routing)
@@ -50,14 +54,27 @@ claude-agent-sdk/                    # Main library module
     └── annotations/
         └── Description.kt          # @Description annotation for schema generation
 
-claude-agent-sdk/
-  src/test/kotlin/com/anthropic/sdk/
-    ├── TypesTest.kt               # Types, enums, serialization, DSL builder (20 tests)
-    ├── MessageParserTest.kt       # JSON → SDKMessage parsing (17 tests)
-    ├── JsonSchemaGeneratorTest.kt # SerialDescriptor → JSON Schema (13 tests)
-    ├── McpServerTest.kt           # MCP server JSON-RPC handling (7 tests)
-    ├── HooksTest.kt               # Hooks DSL and hook outputs (9 tests)
-    └── TransportTest.kt           # CLI flag building verification (20 tests)
+agent/
+  src/test/kotlin/me/matsumo/claude/agent/
+    ├── TypesTest.kt               # Types, enums, serialization, DSL builder (25 tests)
+    ├── MessageParserTest.kt       # JSON → SDKMessage parsing (18 tests)
+    ├── JsonSchemaGeneratorTest.kt # SerialDescriptor → JSON Schema (11 tests)
+    ├── McpServerTest.kt           # MCP server JSON-RPC handling (8 tests)
+    ├── HooksTest.kt               # Hooks DSL and hook outputs (11 tests)
+    ├── TransportTest.kt           # CLI flag building verification (23 tests)
+    ├── ApiStreamEventTest.kt      # API streaming event parsing (9 tests)
+    ├── ContentBlockBuilderTest.kt # Content block DSL builder (6 tests)
+    ├── SubAgentIdResolverTest.kt  # Sub-agent ID resolution (6 tests)
+    └── SubAgentPathsTest.kt       # Sub-agent path construction (3 tests)
+
+demo/                                # Demo applications
+  src/main/kotlin/me/matsumo/claude/agent/demo/
+    ├── Main.kt                     # Demo runner entry point
+    ├── QueryDemo.kt / PromptDemo.kt / StreamingDemo.kt  # Basic usage demos
+    ├── MultiTurnSessionDemo.kt / SessionResumeDemo.kt   # Session management demos
+    ├── McpToolDemo.kt / McpMultipleToolsDemo.kt / McpStandaloneDemo.kt / McpRawToolDemo.kt  # MCP demos
+    ├── HooksDemo.kt / HookEventsDemo.kt                 # Hook system demos
+    └── ... (20+ demo files covering all SDK features)
 ```
 
 ### Key Design Decisions
@@ -93,10 +110,12 @@ The Python SDK at `../claude-agent-sdk-python/` is the reference implementation.
 
 ## Dependencies
 
-- Kotlin 2.0.21, JVM 17
-- `org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1`
-- `org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3`
-- Test: `kotlin-test`, `kotlinx-coroutines-test`, `io.mockk:mockk:1.13.13`
+Managed via `gradle/libs.versions.toml` (version catalog).
+
+- Kotlin 2.3.0, JVM 17
+- `org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1`
+- `org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1`
+- Test: `kotlin-test`, `kotlinx-coroutines-test`, `io.mockk:mockk:1.14.9`
 
 ## Build
 
@@ -120,6 +139,12 @@ The Python SDK at `../claude-agent-sdk-python/` is the reference implementation.
 - [x] Hooks system (all 10 event types, callback routing)
 - [x] File checkpointing (CheckpointId + rewindFiles)
 - [x] Structured outputs (PromptResult.structuredOutput<T>())
-- [x] Tests (96 tests, all passing)
+- [x] Tests (120 tests, all passing)
 - [x] Python SDK parity review
 - [x] Kotlin code quality review
+- [x] Package migration (`com.anthropic.sdk` → `me.matsumo.claude.agent`)
+- [x] Version catalog (`gradle/libs.versions.toml`) 導入
+- [x] API streaming events (ApiStreamEvent sealed interface)
+- [x] Content block builder DSL (contentBlocks { text(); image(); document() })
+- [x] Sub-agent support (SubAgentIdResolver, SubAgentPaths)
+- [x] Comprehensive demo suite (20+ demos in `demo/` module)
