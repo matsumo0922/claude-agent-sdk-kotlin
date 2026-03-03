@@ -28,6 +28,7 @@ import me.matsumo.claude.agent.types.ThinkingConfig
 import me.matsumo.claude.agent.types.ToolsPreset
 import java.io.BufferedReader
 import java.io.File
+import java.io.IOException
 import java.io.OutputStreamWriter
 import java.nio.file.Path
 import kotlin.io.path.exists
@@ -62,6 +63,8 @@ internal class SubprocessTransport(
     private val cwd: String? = options.cwd
 
     private val maxBufferSize: Int = options.maxBufferSize ?: DEFAULT_MAX_BUFFER_SIZE
+
+    private var cachedLoginShellPath: String? = null
 
     // ------------------------------------------------------------------
     // Transport interface
@@ -101,7 +104,7 @@ internal class SubprocessTransport(
             }
 
             ready = true
-        } catch (e: java.io.IOException) {
+        } catch (e: IOException) {
             val cwdPath = cwd
             if (cwdPath != null && !File(cwdPath).exists()) {
                 val err = CLIConnectionException("Working directory does not exist: $cwdPath", e)
@@ -195,7 +198,7 @@ internal class SubprocessTransport(
                     }
                 }
             }
-        } catch (_: java.io.IOException) {
+        } catch (_: IOException) {
             // Stream closed
         }
 
@@ -252,8 +255,10 @@ internal class SubprocessTransport(
     // ------------------------------------------------------------------
 
     private fun findCli(): String {
-        // Check PATH via `which` / `where`
-        val whichCmd = if (System.getProperty("os.name").lowercase().contains("win")) "where" else "which"
+        val isWindows = System.getProperty("os.name").lowercase().contains("win")
+        val whichCmd = if (isWindows) "where" else "which"
+
+        // 1. Check PATH via `which` / `where` (inherits current process PATH)
         runCatching {
             val whichProc = ProcessBuilder(whichCmd, "claude")
                 .redirectErrorStream(true)
@@ -263,10 +268,27 @@ internal class SubprocessTransport(
             if (!result.isNullOrBlank() && File(result).exists()) return result
         }
 
+        // 2. On macOS/Linux, try via login shell to get the user's full PATH.
+        //    IDEs launched from Dock/launcher inherit a minimal PATH that often
+        //    does not include npm/nvm/homebrew paths.
+        if (!isWindows) {
+            runCatching {
+                val shell = System.getenv("SHELL") ?: "/bin/zsh"
+                val proc = ProcessBuilder(shell, "-lc", "$whichCmd claude")
+                    .redirectErrorStream(true)
+                    .start()
+                val result = proc.inputStream.bufferedReader().readLine()?.trim()
+                proc.waitFor()
+                if (!result.isNullOrBlank() && File(result).exists()) return result
+            }
+        }
+
+        // 3. Check well-known installation locations
         val home = System.getProperty("user.home")
         val knownLocations = listOf(
             "$home/.npm-global/bin/claude",
             "/usr/local/bin/claude",
+            "/opt/homebrew/bin/claude",
             "$home/.local/bin/claude",
             "$home/node_modules/.bin/claude",
             "$home/.yarn/bin/claude",
@@ -281,8 +303,6 @@ internal class SubprocessTransport(
         throw CLINotFoundException(
             "Claude Code not found. Install with:\n" +
                     "  npm install -g @anthropic-ai/claude-code\n" +
-                    "\nIf already installed locally, try:\n" +
-                    "  export PATH=\"\$HOME/node_modules/.bin:\$PATH\"\n" +
                     "\nOr provide the path via ClaudeAgentOptions:\n" +
                     "  ClaudeAgentOptions(cliPath = \"/path/to/claude\")",
         )
@@ -576,7 +596,20 @@ internal class SubprocessTransport(
         // Inherit current process env
         env.putAll(System.getenv())
 
-        // User-provided env vars
+        // On macOS/Linux, enrich PATH with the user's login shell PATH so that
+        // the CLI subprocess can resolve commands (node, npm, etc.) even when
+        // the IDE was launched from Dock/launcher with a minimal PATH.
+        if (!System.getProperty("os.name").lowercase().contains("win")) {
+            resolveLoginShellPath()?.let { shellPath ->
+                val current = env["PATH"].orEmpty()
+                if (current != shellPath) {
+                    // Prepend shell PATH so user-installed tools take priority
+                    env["PATH"] = if (current.isEmpty()) shellPath else "$shellPath:$current"
+                }
+            }
+        }
+
+        // User-provided env vars (override everything above)
         env.putAll(options.env)
 
         // SDK required env vars
@@ -593,6 +626,23 @@ internal class SubprocessTransport(
         }
 
         return env
+    }
+
+    /**
+     * Resolve the user's login shell PATH.
+     * Cached after the first successful invocation.
+     */
+    private fun resolveLoginShellPath(): String? {
+        cachedLoginShellPath?.let { return it }
+        return runCatching {
+            val shell = System.getenv("SHELL") ?: "/bin/zsh"
+            val proc = ProcessBuilder(shell, "-lc", "echo \$PATH")
+                .redirectErrorStream(true)
+                .start()
+            val path = proc.inputStream.bufferedReader().readLine()?.trim()
+            proc.waitFor()
+            path?.also { cachedLoginShellPath = it }
+        }.getOrNull()
     }
 
     // ------------------------------------------------------------------
